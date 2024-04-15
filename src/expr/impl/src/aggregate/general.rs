@@ -32,13 +32,9 @@ where
     S: Default + From<T> + CheckedAdd<Output = S> + CheckedSub<Output = S>,
 {
     if retract {
-        state
-            .checked_sub(&S::from(input))
-            .ok_or_else(|| ExprError::NumericOutOfRange)
+        Ok(state.sub(S::from(input)))
     } else {
-        state
-            .checked_add(&S::from(input))
-            .ok_or_else(|| ExprError::NumericOutOfRange)
+        Ok(state.add(S::from(input)))
     }
 }
 
