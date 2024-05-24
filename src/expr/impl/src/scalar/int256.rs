@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use num_traits::Zero;
 use risingwave_common::types::Int256;
 use risingwave_expr::ExprError::Parse;
 use risingwave_expr::{function, Result};
@@ -30,21 +31,7 @@ const MAX_AVAILABLE_HEX_STR_LEN: usize = 66;
 /// ```
 #[function("hex_to_int256(varchar) -> int256")]
 pub fn hex_to_int256(s: &str) -> Result<Int256> {
-    Int256::from_str_hex(s).map_err(|e| {
-        Parse(
-            if s.len() <= MAX_AVAILABLE_HEX_STR_LEN {
-                format!("failed to parse hex '{}', {}", s, e.as_report())
-            } else {
-                format!(
-                    "failed to parse hex '{}...'(truncated, total {} bytes), {}",
-                    &s[..MAX_AVAILABLE_HEX_STR_LEN],
-                    s.len(),
-                    e.as_report()
-                )
-            }
-            .into(),
-        )
-    })
+    Int256::from_str_hex(s).or_else(Ok(Int256::zero()))
 }
 
 #[cfg(test)]
