@@ -31,7 +31,7 @@ const MAX_AVAILABLE_HEX_STR_LEN: usize = 66;
 /// ```
 #[function("hex_to_int256(varchar) -> int256")]
 pub fn hex_to_int256(s: &str) -> Result<Int256> {
-    Int256::from_str_hex(s).or_else(Ok(Int256::zero()))
+    Int256::from_str_hex(s).or_else(|e| Ok(Int256::zero()))
 }
 
 #[cfg(test)]
