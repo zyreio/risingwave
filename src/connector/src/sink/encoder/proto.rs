@@ -317,6 +317,13 @@ fn encode_field<D: MaybeData>(
         },
         DataType::Varchar => match (expect_list, proto_field.kind()) {
             (false, Kind::String) => maybe.on_base(|s| Ok(Value::String(s.into_utf8().into())))?,
+            (false, Kind::Enum(desc)) => maybe.on_base(|s| {
+                Ok(Value::EnumNumber(
+                    desc.get_value_by_name(s.into_utf8().into())
+                        .unwrap()
+                        .number(),
+                ))
+            })?,
             _ => return no_match_err(),
         },
         DataType::Bytea => match (expect_list, proto_field.kind()) {
@@ -403,6 +410,11 @@ fn encode_field<D: MaybeData>(
             (false, Kind::String) => {
                 maybe.on_base(|s| Ok(Value::String(s.into_decimal().to_string())))?
             }
+            (false, Kind::Uint64) => maybe.on_base(|s| {
+                Ok(Value::U64(
+                    s.into_decimal().to_string().parse().unwrap_or(0),
+                ))
+            })?,
             _ => return no_match_err(), // google.type.Decimal
         },
         DataType::Interval => match (expect_list, proto_field.kind()) {

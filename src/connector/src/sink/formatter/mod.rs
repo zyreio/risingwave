@@ -85,6 +85,8 @@ pub enum SinkFormatterImpl {
     UpsertTextJson(UpsertFormatter<TextEncoder, JsonEncoder>),
     UpsertAvro(UpsertFormatter<AvroEncoder, AvroEncoder>),
     UpsertTextAvro(UpsertFormatter<TextEncoder, AvroEncoder>),
+    UpsertProto(UpsertFormatter<JsonEncoder, ProtoEncoder>),
+    UpsertTextProto(UpsertFormatter<TextEncoder, ProtoEncoder>),
     UpsertTemplate(UpsertFormatter<TemplateEncoder, TemplateEncoder>),
     UpsertTextTemplate(UpsertFormatter<TextEncoder, TemplateEncoder>),
     // debezium
@@ -356,6 +358,8 @@ impl SinkFormatterImpl {
                 (F::Upsert, E::Json, None) => Impl::UpsertJson(build(p).await?),
                 (F::Upsert, E::Avro, Some(E::Text)) => Impl::UpsertTextAvro(build(p).await?),
                 (F::Upsert, E::Avro, None) => Impl::UpsertAvro(build(p).await?),
+                (F::Upsert, E::Protobuf, Some(E::Text)) => Impl::UpsertTextProto(build(p).await?),
+                (F::Upsert, E::Protobuf, None) => Impl::UpsertProto(build(p).await?),
                 (F::Upsert, E::Template, Some(E::Text)) => {
                     Impl::UpsertTextTemplate(build(p).await?)
                 }
@@ -394,6 +398,8 @@ macro_rules! dispatch_sink_formatter_impl {
             SinkFormatterImpl::AppendOnlyTextAvro($name) => $body,
             SinkFormatterImpl::AppendOnlyProto($name) => $body,
             SinkFormatterImpl::AppendOnlyTextProto($name) => $body,
+            SinkFormatterImpl::UpsertTextProto($name) => $body,
+            SinkFormatterImpl::UpsertProto($name) => $body,
 
             SinkFormatterImpl::UpsertJson($name) => $body,
             SinkFormatterImpl::UpsertTextJson($name) => $body,
@@ -418,6 +424,8 @@ macro_rules! dispatch_sink_formatter_str_key_impl {
             SinkFormatterImpl::AppendOnlyTextAvro($name) => $body,
             SinkFormatterImpl::AppendOnlyProto($name) => $body,
             SinkFormatterImpl::AppendOnlyTextProto($name) => $body,
+            SinkFormatterImpl::UpsertTextProto($name) => $body,
+            SinkFormatterImpl::UpsertProto($name) => $body,
 
             SinkFormatterImpl::UpsertJson($name) => $body,
             SinkFormatterImpl::UpsertTextJson($name) => $body,
